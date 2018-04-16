@@ -335,6 +335,13 @@ s|<home>|$_HOMEDIR|g
 s|<shell>|$USHELL|g
 s|<password>|$_PASSWORD|g
 s|<entry>|$_ENTRY|g
+s|<cn>|$_CN|g
+s|<givenname>|$_GIVENNAME|g
+s|<sn>|$_SN|g
+s|<displayname>|$_DISPLAYNAME|g
+s|<employeenumber>|$_EMPLOYEENUMBER|g
+s|<email>|$_EMAIL|g
+s|<city>|$_CITY|g
 # Suffixes
 s|<suffix>|$SUFFIX|g
 s|<_suffix>|$_SUFFIX|g
@@ -344,6 +351,7 @@ s|<msuffix>|$MSUFFIX|g
 s|<_msuffix>|$_MSUFFIX|g
 s|<gsuffix>|$GSUFFIX|g
 s|<_gsuffix>|$_GSUFFIX|g
+/DELETEME/d
 EOF
 
   # Use it
@@ -605,7 +613,7 @@ _findnextmid () {
 # Input : nothing
 # Output : the first free ID found starting from $UIDSTART (stdout)
 _findnextuid () {
-  _NEXTUID=$(_ldapsearch "$USUFFIX,$SUFFIX" '(objectClass=posixAccount)' uidNumber | grep "uidNumber: " | sed "s|uidNumber: ||" | uniq | sort -n | tail -n 1)
+  _NEXTUID=$(_ldapsearch "$USUFFIX,$SUFFIX" '(&(objectClass=posixAccount)(uidNumber<=4999))' uidNumber | grep "uidNumber: " | sed "s|uidNumber: ||" | uniq | sort -n | tail -n 1)
   if [ -z "$_NEXTUID" ] || [ "$_NEXTUID" -lt "$UIDSTART" ]
   then
     _NEXTUID="$UIDSTART"

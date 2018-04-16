@@ -20,11 +20,12 @@
 #  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
 #  USA.
 
-if [ -z "$1" ] || [ -z "$2" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]
+if [ -z "$1" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]
 then
-  echo "Usage : $0 <username> <groupname | gid> [uid]"
+  echo "Usage : $0 <username> [uid]"
   exit 1
 fi
+
 
 # Source runtime file
 _RUNTIMEFILE="/usr/lib/ldapscripts/runtime"
@@ -33,17 +34,42 @@ _RUNTIMEFILE="/usr/lib/ldapscripts/runtime"
 # Username = first argument
 _USER="$1"
 
+LOOKUP_RESULT=$(employee_info -f "%n%N%e%i%j" "${_USER}")
+
+if [[ $? -eq 0 ]]
+then
+  IFS=':' read -r _GIVENNAME _SN _EMAIL _EMPLOYEENUMBER _JESCODE <<< "${LOOKUP_RESULT}"
+  _CN="${_GIVENNAME} ${_SN}"
+
+else
+  _GIVENNAME="$_USER"
+  _SN="$_USER"
+  _CN="$_USER"
+  _EMPLOYEENUMBER="DELETEME"
+  _EMAIL="${_USER/_/.}@jes.be"
+fi
+
+if [[ "${_JESCODE}" =~ personeel_B ]]; then
+  _CITY="Brussel"
+elif [[ "${_JESCODE}" =~ personeel_A ]]; then
+  _CITY="Antwerpen"
+elif [[ "${_JESCODE}" =~ personeel_G ]]; then
+  _CITY="Gent"
+else
+  _CITY="DELETEME"
+fi
+
 # User GID = second argument
-_GID=$(_grouptogid "$2")
+_GID=$(_grouptogid "users")
 [ -z "$_GID" ] && end_die "Cannot resolve group $2 to gid : not found"
 
 # User UID
-if [ -z "$3" ] # No argument, we must find a correct UID
+if [ -z "$2" ] # No argument, we must find a correct UID
 then
   _UID=$(_findnextuid)
   [ -z "_UID" ] && end_die "Cannot guess next free user id"
 else
-  _UID="$3"
+  _UID="$2"
 fi
 
 # Compute homedir
