@@ -59,6 +59,16 @@ else
   _CITY="DELETEME"
 fi
 
+echo "first name: ${_GIVENNAME}"
+echo " last name: ${_SN}"
+echo "  username: ${_USER}"
+echo "This user was NOT found in the JES database!"
+echo "Do you want to add this user anyhow? y/n"
+read -n 1 -p "?" -t 600 answer
+echo ""
+
+[[ ${answer} != 'y' ]] && end_die "aborting script early."
+
 # User GID = second argument
 _GID=$(_grouptogid "users")
 [ -z "$_GID" ] && end_die "Cannot resolve group $2 to gid : not found"
