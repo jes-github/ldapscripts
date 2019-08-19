@@ -62,7 +62,7 @@ fi
 echo "first name: ${_GIVENNAME}"
 echo " last name: ${_SN}"
 echo "  username: ${_USER}"
-echo "This user was NOT found in the JES database!"
+echo "This user was NOT found in the JES employee database!"
 echo "Do you want to add this user anyhow? y/n"
 read -n 1 -p "?" -t 600 answer
 echo ""
