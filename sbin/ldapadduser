@@ -34,9 +34,10 @@ _RUNTIMEFILE="/usr/lib/ldapscripts/runtime"
 # Username = first argument
 _USER="$1"
 
-LOOKUP_RESULT=$(employee_info -f "%n%N%e%i%j" "${_USER}")
+LOOKUP_RESULT=$(sudo -iu u4scrpts ssh aqua.jes.be employee_info -f "%n%N%e%i%j" "${_USER}")
+LOOKUP_RETURN=$?
 
-if [[ $? -eq 0 ]]
+if [[ $LOOKUP_RETURN -eq 0 ]]
 then
   IFS=':' read -r _GIVENNAME _SN _EMAIL _EMPLOYEENUMBER _JESCODE <<< "${LOOKUP_RESULT}"
   _CN="${_GIVENNAME} ${_SN}"
@@ -62,11 +63,18 @@ fi
 echo "first name: ${_GIVENNAME}"
 echo " last name: ${_SN}"
 echo "  username: ${_USER}"
-echo "This user was NOT found in the JES employee database!"
-echo "Do you want to add this user anyhow? y/n"
+
+if [[ $LOOKUP_RETURN -ne 0 ]]
+then
+  echo "User \"$_USER\" was NOT found in the JES employee database!"
+  echo "Do you want to add this user anyhow? y/n"
+else
+  echo "User \"$_USER\" was found in the JES employee database."
+  echo "Do you want to continue? y/n"
+fi
+
 read -n 1 -p "?" -t 600 answer
 echo ""
-
 [[ ${answer} != 'y' ]] && end_die "aborting script early."
 
 # User GID = second argument
