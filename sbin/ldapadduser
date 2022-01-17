@@ -77,6 +77,16 @@ read -n 1 -p "?" -t 600 answer
 echo ""
 [[ ${answer} != 'y' ]] && end_die "aborting script early."
 
+# Generate password for user and put it in our keepass db
+# When using a pseudo-tty with ssh, stdout and stderr are combined into new stdout.
+# So here we work around that problem with "tee /dev/tty | tail -1"
+set -o pipefail
+
+_PASSWORD=$(sudo -iu u4scrpts ssh -tq terra.jes.be sudo user_generate_password ${_USER} | tee /dev/tty | tail -1 | tr -d '\r\n')
+[[ $? -eq 0 ]] || end_die "aborting script early"
+
+set +o pipefail
+
 # User GID = second argument
 _GID=$(_grouptogid "users")
 [ -z "$_GID" ] && end_die "Cannot resolve group $2 to gid : not found"
@@ -107,14 +117,18 @@ $_getldif | _filterldif | _askattrs | _utf8encode | _ldapadd
 [ $? -eq 0 ] || end_die "Error adding user $_USER to LDAP"
 echo_log "Successfully added user $_USER to LDAP"
 
+# NOTE: this part was disabled, because we set the password
+# earlier in the script. We don't use $PASSWORDGEN because
+# we want to abort when setting the password goes wrong.
+
 # Generate or ask for user password
-if is_like "$PASSWORDGEN" "<ask>"
-then
-  warn_log "Setting password for user $_USER"
-  _askpassword
-else
-  _genpassword "$_USER"
-fi
+#if is_like "$PASSWORDGEN" "<ask>"
+#then
+#  warn_log "Setting password for user $_USER"
+#  _askpassword
+#else
+#  _genpassword "$_USER"
+#fi
 
 # Add user password
 if [ -n "$_PASSWORD" ]
