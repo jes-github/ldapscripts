@@ -39,7 +39,7 @@ LOOKUP_RETURN=$?
 
 if [[ $LOOKUP_RETURN -eq 0 ]]
 then
-  IFS=':' read -r _GIVENNAME _SN _EMAIL _EMPLOYEENUMBER _JESCODE <<< "${LOOKUP_RESULT}"
+  IFS=':' read -r _GIVENNAME _SN _EMAIL _EMPLOYEENUMBER _STANDPLAATS <<< "${LOOKUP_RESULT}"
   _CN="${_GIVENNAME} ${_SN}"
 
 else
@@ -50,11 +50,11 @@ else
   _EMAIL="${_USER/_/.}@jes.be"
 fi
 
-if [[ "${_JESCODE}" =~ personeel_B ]]; then
+if [[ "${_STANDPLAATS}" =~ Brussel ]]; then
   _CITY="Brussel"
-elif [[ "${_JESCODE}" =~ personeel_A ]]; then
+elif [[ "${_STANDPLAATS}" =~ Antwerpen ]]; then
   _CITY="Antwerpen"
-elif [[ "${_JESCODE}" =~ personeel_G ]]; then
+elif [[ "${_STANDPLAATS}" =~ Gent ]]; then
   _CITY="Gent"
 else
   _CITY="DELETEME"
