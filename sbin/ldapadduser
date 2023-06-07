@@ -34,7 +34,7 @@ _RUNTIMEFILE="/usr/lib/ldapscripts/runtime"
 # Username = first argument
 _USER="$1"
 
-LOOKUP_RESULT=$(sudo -iu u4scrpts ssh terra.jes.be employee_info -f "%n%N%e%i%j" "${_USER}")
+LOOKUP_RESULT=$(sudo -iu u4scrpts ssh terra.jes.be employee_info -f "%n%N%e%i%s" "${_USER}")
 LOOKUP_RETURN=$?
 
 if [[ $LOOKUP_RETURN -eq 0 ]]
